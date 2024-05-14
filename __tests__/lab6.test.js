@@ -29,7 +29,6 @@ describe('Basic user flow for Website', () => {
     });
     
     for (let i = 0; i < prodItemsData.length; i++) {
-      console.log('Checking product item ' + (i+1) + '/' + prodItemsData.length);
       if(prodItemsData[i].title.length == 0) { allArePopulated = false; }
       if(prodItemsData[i].price.length == 0) { allArePopulated = false; }
       if(prodItemsData[i].image.length == 0) { allArePopulated = false; }
@@ -75,17 +74,33 @@ describe('Basic user flow for Website', () => {
     // Grab the shadowRoot of that element (it's a property), then query a button from that shadowRoot.
     // Once you have the button, you can click it and check the innerText property of the button.
     // Once you have the innerText property, use innerText.jsonValue() to get the text value of it
+    await button.click();
   }, 5000);
 
   // Check to make sure that after clicking "Add to Cart" on every <product-item> that the Cart
   // number in the top right has been correctly updated
   it('Checking number of items in cart on screen', async () => {
     console.log('Checking number of items in cart on screen...');
-    // TODO - Step 3
+
+    let items = await page.$$('product-item');
+    for (let i = 0; i < items.length; i++) {
+      let item = items[i];
+      let itemRoot = await item.getProperty('shadowRoot');
+      let button = await itemRoot.$('button');
+      await button.click();
+    }
+
+    let cartCount = await page.$('#cart-count');
+    let countNum = await (await cartCount.getProperty('innerText')).jsonValue();
+
+    expect(countNum).toBe("20");
+
+
+    // Done - Step 3
     // Query select all of the <product-item> elements, then for every single product element
     // get the shadowRoot and query select the button inside, and click on it.
     // Check to see if the innerText of #cart-count is 20
-  }, 10000);
+  }, 30000);
 
   // Check to make sure that after you reload the page it remembers all of the items in your cart
   it('Checking number of items in cart on screen after reload', async () => {
